@@ -1,12 +1,12 @@
+mod algorithms;
+
 use std::process::exit;
 use rand::Rng;
-
-const NUMBER_OF_ALGORITHMS : i32 = 1;
 
 fn main() {
     let mut array :Vec<i32> = vec![]; 
     let mut get_array_check = true;
-    let mut result_times: Vec<&str> = vec![];
+    let mut result_times: Vec<String> = vec![];
     println!("Welcome to Sorting Algorithms Bechmark");
     loop{
         if get_array_check{
@@ -20,7 +20,7 @@ fn main() {
             -2 => print_result_times(&result_times),
             -1 => get_array_check = true,
             0 => exit(0),
-            1..=NUMBER_OF_ALGORITHMS => result_times.push(apply_algorithm(choice, &array)),
+            1..=algorithms::NUMBER_OF_ALGORITHMS => result_times.push(apply_algorithm(choice, &array)),
             _ => println!("Something Went wrong"),
         };
     }; 
@@ -46,16 +46,19 @@ fn get_array() -> Vec<i32>{
 
 fn get_valid_algorithm_choice() -> i32 {
     loop{
+        println!("---------------------");
         println!("Choose the algorithm:");
+        println!("(2) Selection Sort");
         println!("(1) Bubble Sort");
         println!("---------------------");
         println!("(0) Exit");
         println!("(-1) Change Array");
         println!("(-2) See Previous Times");
+        println!("---------------------");
         match get_i32_from_user() {
             Some(num) => {
                 if num < -2 { }
-                else if num > NUMBER_OF_ALGORITHMS { }
+                else if num > algorithms::NUMBER_OF_ALGORITHMS { }
                 else { return num }
             },
             None => {},
@@ -63,15 +66,16 @@ fn get_valid_algorithm_choice() -> i32 {
     } 
 }
 
-fn print_result_times(times : &Vec<&str>){
+fn print_result_times(times : &Vec<String>){
     println!("Current Sort Times:\n");
     for time in times{ println!("{}", time); }
 }
 
-fn apply_algorithm(algorithm : i32, array : &Vec<i32>) -> &'static str{
+fn apply_algorithm(algorithm : i32, array : &Vec<i32>) -> String{
     match algorithm {
-        1 => bubble_sort(array),
-        _ => { println!("This shouldnt have happened"); "Something Went Wrong on this one" },
+        2 => algorithms::selection_sort(array),
+        1 => algorithms::bubble_sort(array),
+        _ => { println!("This shouldnt have happened"); String::from("Something Went Wrong on this one") },
     }
 }
 
@@ -134,30 +138,4 @@ fn generate_random_array() -> Option<Vec<i32>>{
         vec.push(num);
     }
     return Some(vec);
-}
-
-fn bubble_sort(array : &Vec<i32>) -> &'static str{
-    println!("--Starting Bubble Sort--\n...");
-    let mut vec = array.clone();
-    let start_time = std::time::SystemTime::now();
-    for items_sorted in 0..=vec.len()-1{
-        for index in 0..=vec.len()-items_sorted{
-            if index == vec.len()-1 { break };
-            if vec[index] > vec[index+1]{ 
-                switch_numbers_at_indexes(&mut vec, index, index+1); 
-            }
-        }
-    }
-    let end_time = std::time::SystemTime::now();
-    let duration = end_time.duration_since(start_time);
-    return match duration {
-        Ok(dur) => {println!("--Bubble Sort Done--\nYour new array is\n{:?}\nCalculated in {:?} ms", vec, dur.as_secs_f64()); stringify!(format!("Bubble Sort on {} elements took {} ms", array.len(), dur.as_secs_f64())) },
-        Err(err) => {print!("Something went wrong with the timing, [start_time: {:#?}, end_time: {:#?}] specifically {}", start_time, end_time, err); "Bubble Sort Failed"},
-    }
-}
-
-fn switch_numbers_at_indexes(array: &mut Vec<i32>, index1: usize, index2: usize){
-    let num = array[index1];
-    array[index1] = array[index2];
-    array[index2] = num;  
 }
